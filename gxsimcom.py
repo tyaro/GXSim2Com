@@ -1,6 +1,8 @@
 import util
+import struct
+import binascii
 import gxsimdef
-#import db
+import socket
 
 data = gxsimdef.ReadDeviceBlock
 deviceType = gxsimdef.deviceType
@@ -10,8 +12,6 @@ data[44]=deviceType[dev]
 print(data[44])
 head = 1000
 
-import struct
-import binascii
 
 def hex_to_float(s):
     if s.startswith('0x'):
@@ -38,49 +38,12 @@ def readResponce(responce,headaddr):
 targetIp = "127.0.0.1"
 targetPort = util.getGXSimPortNum()
 bufferSize = 2048 
-
-
-
-#ソケットオブジェクトの作成
-import socket
 tcp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_client.connect((targetIp,targetPort))
 print("CONNECTION OPEN")
+tcp_client.send(bytes(data))
+r = tcp_client.recv(bufferSize)
+mydict = readResponce(r,1000)
+print(mydict)
+tcp_client.close()
 
-import time
-import threading
-
-#client = db.createInfluxdbClient()
-
-def job():
-    tcp_client.send(bytes(data))
-    r = tcp_client.recv(bufferSize)
-    mydict = readResponce(r,1000)
-    print(mydict)
-    #db.writeData(client,mydict)
-
-def job2():
-    tcp_client.send(bytes(data))
-    r = tcp_client.recv(bufferSize)
-    mydict = readResponce(r,1100)
-    print(mydict)
-    db.writeData(client,mydict)
-
-
-def schedule(interval, f):
-    base_time = time.time()
-    next_time = 0
-    try:
-        while True:
-            t = threading.Thread(target=f)
-            t.start()
-            next_time = ((base_time - time.time()) % interval) or interval
-            time.sleep(next_time)
-    except KeyboardInterrupt:
-            tcp_client.close()
-            print("CONNECTION CLOSE")
-
-
-print(data)
-
-schedule(1,job)
