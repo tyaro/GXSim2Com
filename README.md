@@ -26,10 +26,7 @@ GXSim3はTCPでやりとりは行えないっぽい
 ## 使用 Library
 
 [psutil](https://github.com/giampaolo/psutil) : BSD-3-Clause License
-[struct]
-[binascii]
-[socket]
-[time]
+
 
 ```
 pip install psutil
