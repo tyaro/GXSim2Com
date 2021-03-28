@@ -1,9 +1,40 @@
-import util
 import struct
 import binascii
-import gxsimdef
 import socket
 import re
+import psutil
+
+deviceType = {
+    #ビットデバイス
+    "M":{"code":0x90,"base":10},
+    "L":{"code":0x92,"base":16},
+    "B":{"code":0xA0,"base":16},
+    "X":{"code":0x9C,"base":16},
+    "Y":{"code":0x9D,"base":16},
+    "SB":{"code":0xA1,"base":16},
+    "TC":{"code":0xC0,"base":10},    #タイマ：コイル
+    "TS":{"code":0xC1,"base":10},    #タイマ：接点
+    "CC":{"code":0xC3,"base":10},    #カウンタ：コイル
+    "CS":{"code":0xC4,"base":10},    #カウンタ：接点
+    #ワードデバイス
+    "D":{"code":0xA8,"base":10},
+    "R":{"code":0xAF,"base":10},
+    "ZR":{"code":0xB0,"base":10},
+    "W":{"code":0xB4,"base":16},
+    "SW":{"code":0xB4,"base":16},
+    "TN":{"code":0xB4,"base":10},    #タイマ：現在値
+    "CN":{"code":0xB4,"base":10},    #カウンタ：現在値
+    "NONE":{"code":0x00,"base":10},
+}
+
+
+def getGXSimPortNum():
+    for p in psutil.process_iter(attrs=["pid", "name"]):
+        if p.info["name"] == "QnUDSimRun2.exe" or p.info["name"] == "QnXSimRun2.exe":
+            pid_num = p.info["pid"]
+            break
+    port_num = [conn.laddr.port for conn in psutil.net_connections() if conn.pid == pid_num]
+    return port_num[0]
 
 def hex2float(s):
     if s.startswith('0x'):
@@ -97,7 +128,7 @@ class GXSim2Com():
         pass
 
     def Connect(self):
-        self.targetPort = util.getGXSimPortNum()
+        self.targetPort = getGXSimPortNum()
         self.tcpClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.tcpClient.connect((self.targetIp,self.targetPort))
         print("CONNECTION OPEN")
@@ -330,12 +361,12 @@ class GXSim2Com():
         return data
 
     def getDeviceCode(self,addr):
-        for pattern in gxsimdef.deviceType:
+        for pattern in deviceType:
             result = re.match(pattern,addr)
             if result:
                 break
-        code = [gxsimdef.deviceType[pattern]["code"] , 0]
-        base = gxsimdef.deviceType[pattern]["base"]
+        code = [deviceType[pattern]["code"] , 0]
+        base = deviceType[pattern]["base"]
         rowaddr = re.sub(pattern,'',addr)
         if base == 10:
             hexAddr = struct.pack("<L",int(rowaddr))
@@ -344,12 +375,12 @@ class GXSim2Com():
         return code,hexAddr
 
     def getDeviceCode2(self,addr):
-        for pattern in gxsimdef.deviceType:
+        for pattern in deviceType:
             result = re.match(pattern,addr)
             if result:
                 break
-        code = [gxsimdef.deviceType[pattern]["code"] , 0]
-        base = gxsimdef.deviceType[pattern]["base"]
+        code = [deviceType[pattern]["code"] , 0]
+        base = deviceType[pattern]["base"]
         rowaddr = re.sub(pattern,'',addr)
         if base == 10:
             hexAddr1 = struct.pack("<L",int(rowaddr))
@@ -360,25 +391,5 @@ class GXSim2Com():
         return code,hexAddr1,hexAddr2
 
 
-if __name__ == "__main__":
-    gxsim = GXSim2Com()
-    gxsim.Connect()
-    bitValues =gxsim.BlockReadBit("M0",64)
-    print(bitValues)
-    wordValues = gxsim.BlockReadWord("D0",960)
-    print(wordValues)
-    dwrodValues = gxsim.BlockReadDWord("D1030",1)
-    print(dwrodValues)
-    bitValues =gxsim.BlockReadFloat("D1000",480)
-    print(bitValues)
 
-    b = gxsim.WriteBit("M0",1)
-    print(b)
-    b = gxsim.WriteWord("D1030",100)
-    print(b)
-    b = gxsim.WriteDWord("D1030",999999)
-    print(b)
-    b = gxsim.WriteFloat("D1030",1.23)
-    print(b)
-    gxsim.Close()
 
