@@ -5,28 +5,18 @@ import gxsimdef
 import socket
 import re
 
-
-
-def hex_to_float(s):
+def hex2float(s):
     if s.startswith('0x'):
         s = s[2:]
     s = s.replace(' ', '')
-    return struct.unpack('>f', binascii.unhexlify(s))[0]
+    return struct.unpack('<f', binascii.unhexlify(s))[0]
 
-def printData(dicData):
-    for key in dicData.keys():
-        s = key + ':' + "{:.2f}".format(dicData[key])
+def hex2word(s):
+    if s.startswith('0x'):
+        s = s[2:]
+    s = s.replace(' ', '')
+    return struct.unpack('<h', binascii.unhexlify(s))[0]
 
-def readResponce(responce,headaddr):
-    data = {}
-    d = headaddr
-    for index in range(46,len(responce),4):
-        s = '{:02x}'.format(responce[index+3]) + '{:02x}'.format(responce[index+2]) + '{:02x}'.format(responce[index+1]) + '{:02x}'.format(responce[index+0])
-        key = 'D{:04d}:f'.format(d)
-        fdata = hex_to_float(s)
-        data.setdefault(key,fdata)
-        d = d + 2
-    return data
 
 class GXSim2Com():
     targetIp = "127.0.0.1"
@@ -89,7 +79,11 @@ class GXSim2Com():
     
     def _receive(self,dataSize):
         data = bytes()
-        #data += self.tcpClient.recv(self.bufferSize)
+        '''
+        data += self.tcpClient.recv(self.bufferSize)
+        print(len(data))
+        print(dataSize)        
+        '''
         if len(data) < dataSize:
             while True:
                 data += self.tcpClient.recv(self.bufferSize)
@@ -98,10 +92,37 @@ class GXSim2Com():
                 elif len(data) > dataSize:
                     data = None
                     break
+        #'''
         return data
 
 
+    def BlockReadBit(self,startAddress,num):
+        code,addr = self.getDeviceCode(startAddress)
+        hnum = struct.pack("<H",num)
+        if code == "0x00":
+            return None
+        data = bytes(self.send_const2)
+        data += bytes(self.cmd_blockread)
+        data += bytes(code)
+        data += bytes(addr)
+        data += bytes(hnum)
+
+        sendData = self.conbineSenddata(data)
+        self._send(sendData)
+        size = -(-num // 16)*2 + 46
+        r = self._receive(size)
+        values = []
+        for index in range(46,len(r),2):
+            w = '{:02x}'.format(r[index+0]) + '{:02x}'.format(r[index+1])
+            b = '{:016b}'.format(hex2word(w))
+            for value in b:
+                values.append(int(value))
+        return values
+
     def BlockReadWord(self,startAddress,num):
+        if num > 960:
+            num = 960
+            
         code,addr = self.getDeviceCode(startAddress)
         hnum = struct.pack("<H",num)
         if code == "0x00":
@@ -117,9 +138,38 @@ class GXSim2Com():
         self._send(sendData)
         size = num * 2 + 46
         r = self._receive(size)
-        print(''.join([r'\x{:02x}'.format(x) for x in r] ))
+        values = []
+        for index in range(46,len(r),2):
+            s = '{:02x}'.format(r[index+0]) + '{:02x}'.format(r[index+1])
+            values.append(hex2word(s))
+        return values
 
+        #print(''.join([r'\x{:02x}'.format(x) for x in r] ))
 
+    def BlockReadFloat(self,startAddress,num):
+        if num > 480:
+            num = 480
+            
+        code,addr = self.getDeviceCode(startAddress)
+        hnum = struct.pack("<H",num*2)
+        if code == "0x00":
+            return None
+
+        data = bytes(self.send_const2)
+        data += bytes(self.cmd_blockread)
+        data += bytes(code)
+        data += bytes(addr)
+        data += bytes(hnum)
+
+        sendData = self.conbineSenddata(data)
+        self._send(sendData)
+        size = num * 4 + 46
+        r = self._receive(size)
+        values = []
+        for index in range(46,len(r),4):
+            s = '{:02x}'.format(r[index+0]) + '{:02x}'.format(r[index+1]) + '{:02x}'.format(r[index+2]) + '{:02x}'.format(r[index+3]) 
+            values.append(hex2float(s))
+        return values
 
 
     def conbineSenddata(self,requestdata):
@@ -157,6 +207,11 @@ if __name__ == "__main__":
     #mydict = readResponce(r,1000)
     #print(mydict)
     addr = "D0"
-    gxsim.BlockReadWord(addr,1)
+    wordValues = gxsim.BlockReadWord(addr,960)
+    print(wordValues)
+    bitValues =gxsim.BlockReadBit("M0",64)
+    print(bitValues)
+    bitValues =gxsim.BlockReadFloat("D1000",480)
+    print(bitValues)
     gxsim.Close()
 
