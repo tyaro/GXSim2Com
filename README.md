@@ -17,8 +17,8 @@ pip install gxsimcom
 ```
 
 
-- GXWorks2 にて デバッグ⇒ シミュレーション開始してください
-- GXSim2走らせているPC上で実行して下さい。
+GXWorks2 にて デバッグ⇒ シミュレーション開始してください
+GXSim2走らせているPC上で実行して下さい。
 
 ## METHOD
 
