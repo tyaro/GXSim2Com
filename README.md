@@ -12,6 +12,11 @@ GXSim3はTCPでやりとりは行えないっぽい
 とりあえずでやってみたのでソースは今後精査していきたいと思います。
 
 ## 使用方法
+```py
+pip install gxsimcom
+```
+
+
 - GXWorks2 にて デバッグ⇒ シミュレーション開始してください
 - GXSim2走らせているPC上で実行して下さい。
 
@@ -66,6 +71,7 @@ WriteDWord(Address,value):ダブルワード書込(アドレス,値) ※書込�
     print(b)
 ```
 WriteFloat(Address,value):単精度実数書込(アドレス,値) ※書込後読返有
+読返しは有効桁6桁でしていますが、端数でFalseが返るときあるかも・・・
 ```py
     b = gxsim.WriteFloat("D1030",1.23)
     print(b)
