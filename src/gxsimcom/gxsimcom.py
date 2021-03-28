@@ -187,7 +187,7 @@ class GXSim2Com():
         data += bytes(hvalue)
         data += bytes([0x00])
         sendData = self.conbineSenddata(data)
-        print(''.join([r'\x{:02x}'.format(x) for x in sendData] ))
+        #print(''.join([r'\x{:02x}'.format(x) for x in sendData] ))
         
         self._send(sendData)
         self._receive(46)
