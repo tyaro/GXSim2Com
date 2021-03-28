@@ -1,12 +1,8 @@
-# the inclusion of the tests module is not meant to offer best practices for
-# testing in general, but rather to support the `find_packages` example in
-# setup.py that excludes installing the "tests" package
-
 import gxsimcom
 
 
 if __name__ == "__main__":
-    gxsim = GXSim2Com()
+    gxsim = gxsimcom.GXSim2Com()
     gxsim.Connect()
     bitValues =gxsim.BlockReadBit("M0",64)
     print(bitValues)

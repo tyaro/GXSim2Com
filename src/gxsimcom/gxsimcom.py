@@ -239,8 +239,9 @@ class GXSim2Com():
         #print(''.join([r'\x{:02x}'.format(x) for x in sendData] ))
         self._send(sendData)
         self._receive(46)
-        values = self.BlockReadFloat(address,2)
-        if value == values[0]:
+        values = self.BlockReadFloat(address,1)
+        #print(value,values)
+        if str(value) == '{:.6g}'.format(values[0]):
             return True
         else:
             return False
@@ -389,7 +390,5 @@ class GXSim2Com():
             hexAddr1 = struct.pack("<L",int("0x"+rowaddr,16))
             hexAddr2 = struct.pack("<L",int("0x"+rowaddr,16)+1)
         return code,hexAddr1,hexAddr2
-
-
 
 
