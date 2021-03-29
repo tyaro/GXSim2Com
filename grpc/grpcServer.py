@@ -40,7 +40,7 @@ class MelsecComServiceServicer(melsec_pb2_grpc.MelsecComServiceServicer):
           s = 'Receive Read Word Device Command! [device: {},num: {}]'.format(new_msg.device,new_msg.num)
           print(s)
           d = plc.BlockReadWord(new_msg.device,new_msg.num)
-          reply_msgs.append(melsec_pb2.ReplyRead(reply_msg=d))
+          reply_msgs.append(melsec_pb2.ReplyRead(reply_msg=str(d)))
           for message in reply_msgs:
               yield message
 
@@ -50,7 +50,7 @@ class MelsecComServiceServicer(melsec_pb2_grpc.MelsecComServiceServicer):
           s = 'Receive Read Device Command! [device: {},num: {}]'.format(new_msg.device, new_msg.num)
           print(s)
           d = plc.BlockReadBit(new_msg.device,new_msg.num)
-          reply_msgs.append(melsec_pb2.ReplyRead(reply_msg=d))
+          reply_msgs.append(melsec_pb2.ReplyRead(reply_msg=str(d)))
           for message in reply_msgs:
               yield message
 

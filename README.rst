@@ -1,11 +1,9 @@
 GXSimCom
-########
+
 
 GxSim2 接続 ライブラリ
-====================
 
 ポイント
--------
 
 
 毎回 GXSim2 のポートが違うため、getGxSimPortNum()でGxSim2のプロセスIDを取得してポートを確認し、GXsim2にアクセスします。
@@ -18,7 +16,6 @@ GXSim3はTCPでやりとりは行えないっぽい
 とりあえずでやってみたのでソースは今後精査していきたいと思います。
 
 使用方法
--------
 
 ::
 
@@ -30,10 +27,8 @@ GXWorks2 にて デバッグ⇒ シミュレーション開始してください
 GXSim2走らせているPC上で実行して下さい。
 
 METHOD
-======
 
 Connection
-----------
 
 ::  
 
@@ -42,7 +37,7 @@ Connection
     gxsim.Close()
 
 Read
-----
+
 
 BlockReadBit(startAddress,num) : ビットデバイス読込(開始アドレス,読込点数)
 
@@ -71,7 +66,7 @@ BlockReadFloat(startAddress,num):単精度実数読込(開始アドレス,読込
     print(floatValues)
 
 Write
------
+
 
 WriteBit(Address,value):ビット書込(アドレス,値) ※書込後読返有
 ::
@@ -99,7 +94,7 @@ WriteFloat(Address,value):単精度実数書込(アドレス,値) ※書込後�
     print(b)
 
 使用 Library
-############
+
 
 [psutil](https://github.com/giampaolo/psutil) : BSD-3-Clause License
 
