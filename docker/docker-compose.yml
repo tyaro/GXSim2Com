@@ -12,11 +12,8 @@ services:
       dockerfile: Dockerfile_client
     container_name: 'client-python'
     working_dir: '/root/opt'
-    #command: /bin/bash -c "cd /root/opt && python grpcServer.py && uvicorn RestAPIServer:app --reload --host 0.0.0.0 --port 8000"
     depends_on: 
       - memcached
-    ports: 
-      - "18000:8000"
     tty: true
     volumes:
       - .\client:/root/opt

@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package melseccom;
+
+message HelloMessage{
+    string msg = 1;
+}
+
+message ReplyHello{
+    string reply_msg = 1;
+}
+
+//■ 読込み
+message ReadMsg{
+    string device = 1;
+    int32 num = 2;
+}
+
+message ReplyRead{
+    string reply_msg = 1;
+}
+
+//■ 書込み
+message WriteMsg{
+    string device = 1;
+    int32 value = 2;
+}
+
+message ReplyWrite{
+    string reply_msg = 1;
+}
+
+service MelsecComService{
+    rpc HelloMsg (stream HelloMessage) returns (stream ReplyHello) {}
+    rpc BlockReadFloat (stream ReadMsg) returns (stream ReplyRead) {}
+    rpc BlockReadWord (stream ReadMsg) returns (stream ReplyRead) {}
+    rpc BlockReadBit (stream ReadMsg) returns (stream ReplyRead) {}
+    rpc BlockWriteFloat (stream WriteMsg) returns (stream ReplyWrite) {}
+    rpc BlockWriteWord (stream WriteMsg) returns (stream ReplyWrite) {}
+    rpc BlockWriteBit (stream WriteMsg) returns (stream ReplyWrite) {}
+}
+
